@@ -67,6 +67,11 @@
     :init
     (setq evil-escape-key-sequence "jk"))
 
+(map! :leader
+      (:prefix ("i")
+      :desc "Emoji"
+      "e" #'emoji-insert))
+
 (use-package org
         :config
         (setq org-agenda-start-with-log-mode t)
