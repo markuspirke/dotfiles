@@ -11,8 +11,7 @@
 (setq display-line-numbers-type 'relative) ;; This sets relative line numbers.
 
 ;; Disable line numbers for some modes
-(dolist (mode '(org-mode-hook
-                term-mode-hook
+(dolist (mode '(term-mode-hook
                 org-agenda-mode-hook
                 pdf-view-mode-hook ;; otherwise conflicts
                 shell-mode-hook
