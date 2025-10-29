@@ -121,6 +121,11 @@
 (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 (with-eval-after-load 'org (global-org-modern-mode))
 
+(map! :after org
+      :map org-mode-map
+      :localleader  ; this corresponds to SPC m
+      :desc "Emphasize" "i" #'org-emphasize)
+
 (defun mp/org-agenda-open-hook ()
   "Hook to be run when org-agenda is opened"
   (olivetti-mode))

@@ -46,8 +46,6 @@ We use the package circadian to change between a light and dark theme.
       "k" 'evil-previous-visual-line)
 #+end_src
 
-#+RESULTS:
-
 ** Remove tilde on empty lines
 #+begin_src emacs-lisp :tangle yes
 (remove-hook 'org-mode-hook #'vi-tilde-fringe-mode)
@@ -157,6 +155,13 @@ Use *jk* to escape.
 (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 (with-eval-after-load 'org (global-org-modern-mode))
 
+#+end_src
+** Keybindings
+#+begin_src emacs-lisp :tangle yes
+(map! :after org
+      :map org-mode-map
+      :localleader  ; this corresponds to SPC m
+      :desc "Emphasize" "i" #'org-emphasize)
 #+end_src
 ** Org-Agenda
 #+begin_src emacs-lisp :tangle yes
