@@ -466,10 +466,27 @@ The latter one had conflicts on my system, as I already had installed something 
                         (string-prefix-p "/iCloud" (mu4e-message-field msg :maildir))))
         :vars '((user-mail-address . "markus.pirke@icloud.com")
                 (user-full-name    . "Markus Pirke")
+                (smtpmail-smtp-server  . "smtp.mail.me.com")
+                (smtpmail-smtp-user . "username@icloud.com")
+                (smtpmail-smtp-service . 587)
+                (smtpmail-stream-type  . starttls)
+                (smtpmail-use-gnutls   . t)
                 (mu4e-sent-folder  . "/iCloud/Sent Messages")
                 (mu4e-drafts-folder . "/iCloud/Drafts")
                 (mu4e-trash-folder  . "/iCloud/Deleted Messages")
                 (mu4e-refile-folder . "/iCloud/Archive")))))
+
+(add-to-list 'mu4e-bookmarks
+  ;; bookmark for message that require quick attention
+  '( :name "Unread Work"
+     :key  ?w
+     :query "flag:unread AND NOT flag:trashed AND maildir:/FAU/INBOX"))
+
+(add-to-list 'mu4e-bookmarks
+  ;; bookmark for message that require quick attention
+  '( :name "Unread Personal"
+     :key  ?p
+     :query "flag:unread AND NOT flag:trashed AND maildir:/iCloud/INBOX"))
 #+end_src
 * Evil
 ** Evil-multiedit
