@@ -292,11 +292,15 @@
          (latex-mode . jinx-mode)
          (org-mode . jinx-mode)
          (text-mode . jinx-mode))
-  ;; :config
-  ;; (setq jinx-languages '("en_US" "de"))
+  :config (setq jinx-languages "en_US,de")
   )
 ;; this turns of the flyspell-mode when an org document is opened
+;; disable flyspell-mode
+(setq-default spell-checking-enable-by-default nil)
 (remove-hook 'org-mode-hook #'flyspell-mode)
+(remove-hook 'latex-mode-hook #'flyspell-mode)
+(remove-hook 'LaTeX-mode-hook #'flyspell-mode)
+(remove-hook 'text-mode-hook #'flyspell-mode)
 ;; Shortcut for correct word
 (map! :leader
       (:prefix ("e" . "edit")
