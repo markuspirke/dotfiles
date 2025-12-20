@@ -118,12 +118,15 @@ zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 
 # ALIASES
 alias ls='ls --color'
+alias ll='ls -la --color'
 
 alias ..="cd .."
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 alias ......="cd ../../../../.."
+alias history="history -n 0"
+alias pass-ecap='PASSWORD_STORE_DIR=~/.password-store-ecap pass'
 
 #alias vim='vim -u $HOME/.config/vim/vimrc'
 
