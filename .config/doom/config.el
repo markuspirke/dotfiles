@@ -72,6 +72,25 @@
       :desc "Emoji"
       "e" #'emoji-insert))
 
+(with-eval-after-load 'evil
+  ;; Create a prefix command
+  (define-prefix-command 'my/umlaut-map)
+
+  ;; Bind Option + ' as the prefix in insert state
+  (evil-define-key 'insert 'global
+    (kbd "M-'") 'my/umlaut-map)
+
+  ;; Lowercase umlauts
+  (define-key my/umlaut-map (kbd "a") (lambda () (interactive) (insert "ä")))
+  (define-key my/umlaut-map (kbd "o") (lambda () (interactive) (insert "ö")))
+  (define-key my/umlaut-map (kbd "u") (lambda () (interactive) (insert "ü")))
+  (define-key my/umlaut-map (kbd "s") (lambda () (interactive) (insert "ß")))
+
+  ;; Uppercase umlauts
+  (define-key my/umlaut-map (kbd "A") (lambda () (interactive) (insert "Ä")))
+  (define-key my/umlaut-map (kbd "O") (lambda () (interactive) (insert "Ö")))
+  (define-key my/umlaut-map (kbd "U") (lambda () (interactive) (insert "Ü"))))
+
 (use-package org
         :config
         (setq org-agenda-start-with-log-mode t)
@@ -320,11 +339,12 @@
 
         ;; Make sure plain text mails flow correctly for recipients
         (setq mu4e-compose-format-flowed t)
-
+        (setq sendmail-program (executable-find "msmtp"))
         ;; Configure the function to use for sending mail
-        (setq message-send-mail-function 'smtpmail-send-it)
+        ;; (setq message-send-mail-function 'smtpmail-send-it)
+        (setq send-mail-function 'sendmail-send-it
+            message-send-mail-function 'sendmail-send-it)
         )
-
 (setq mu4e-contexts
       (list
        ;; Work account
@@ -352,11 +372,11 @@
                         (string-prefix-p "/iCloud" (mu4e-message-field msg :maildir))))
         :vars '((user-mail-address . "markus.pirke@icloud.com")
                 (user-full-name    . "Markus Pirke")
-                (smtpmail-smtp-server  . "smtp.mail.me.com")
-                (smtpmail-smtp-user . "username@icloud.com")
-                (smtpmail-smtp-service . 587)
-                (smtpmail-stream-type  . starttls)
-                (smtpmail-use-gnutls   . t)
+                ;; (smtpmail-smtp-server  . "smtp.mail.me.com")
+                ;; (smtpmail-smtp-user . "markus.pirke@icloud.com")
+                ;; (smtpmail-smtp-service . 587)
+                ;; (smtpmail-stream-type  . starttls)
+                ;; (smtpmail-use-gnutls   . t)
                 (mu4e-sent-folder  . "/iCloud/Sent Messages")
                 (mu4e-drafts-folder . "/iCloud/Drafts")
                 (mu4e-trash-folder  . "/iCloud/Deleted Messages")

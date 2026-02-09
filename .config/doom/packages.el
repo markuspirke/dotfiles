@@ -63,3 +63,4 @@
 (package! snakemake-mode)
 (package! good-scroll)
 (package! ox-hugo)
+(package! smtpmail)
