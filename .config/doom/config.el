@@ -91,6 +91,16 @@
   (define-key my/umlaut-map (kbd "O") (lambda () (interactive) (insert "Ö")))
   (define-key my/umlaut-map (kbd "U") (lambda () (interactive) (insert "Ü"))))
 
+(defun my/search-documents ()
+  "Search files in ~/Documents using consult fd/find."
+  (interactive)
+  (let ((default-directory "~/Documents/"))
+    (consult-fd)))
+
+(map! :leader
+      :desc "Find file in Documents"
+      "d f" #'my/search-documents)
+
 (use-package org
         :config
         (setq org-agenda-start-with-log-mode t)

@@ -125,6 +125,19 @@ Not like this! This will destroy movement in fuzzy search.
   (define-key my/umlaut-map (kbd "O") (lambda () (interactive) (insert "Ö")))
   (define-key my/umlaut-map (kbd "U") (lambda () (interactive) (insert "Ü"))))
 #+end_src
+* Searching
+** Files
+ #+begin_src emacs-lisp tangle:yes
+(defun my/search-documents ()
+  "Search files in ~/Documents using consult fd/find."
+  (interactive)
+  (let ((default-directory "~/Documents/"))
+    (consult-fd)))
+
+(map! :leader
+      :desc "Find file in Documents"
+      "d f" #'my/search-documents)
+ #+end_src
 * Org mode
 ** General things
 #+begin_src emacs-lisp :tangle yes
