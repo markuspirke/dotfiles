@@ -78,7 +78,7 @@
 
   ;; Bind Option + ' as the prefix in insert state
   (evil-define-key 'insert 'global
-    (kbd "M-'") 'my/umlaut-map)
+    (kbd "C-u") 'my/umlaut-map)
 
   ;; Lowercase umlauts
   (define-key my/umlaut-map (kbd "a") (lambda () (interactive) (insert "ä")))
