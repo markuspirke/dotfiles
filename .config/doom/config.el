@@ -101,6 +101,16 @@
       :desc "Find file in Documents"
       "d f" #'my/search-documents)
 
+(defun my/search-papers ()
+  "Search files in ~/Documents using consult fd/find."
+  (interactive)
+  (let ((default-directory "~/Documents/Papers"))
+    (consult-fd)))
+
+(map! :leader
+      :desc "Find paper"
+      "d p" #'my/search-papers)
+
 (use-package org
         :config
         (setq org-agenda-start-with-log-mode t)
@@ -193,6 +203,10 @@
         ("work" ("💻") nil nil :ascent center)
         )
       )
+
+(map! :leader
+      :desc "Weekly agenda"
+      "o w" #'org-agenda-list)
 
 (require 'org-super-agenda)
 (setq org-super-agenda-groups

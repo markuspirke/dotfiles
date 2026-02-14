@@ -126,7 +126,7 @@ Not like this! This will destroy movement in fuzzy search.
   (define-key my/umlaut-map (kbd "U") (lambda () (interactive) (insert "Ü"))))
 #+end_src
 * Searching
-** Files
+** General documents
  #+begin_src emacs-lisp tangle:yes
 (defun my/search-documents ()
   "Search files in ~/Documents using consult fd/find."
@@ -137,6 +137,18 @@ Not like this! This will destroy movement in fuzzy search.
 (map! :leader
       :desc "Find file in Documents"
       "d f" #'my/search-documents)
+ #+end_src
+** Papers
+ #+begin_src emacs-lisp tangle:yes
+(defun my/search-papers ()
+  "Search files in ~/Documents using consult fd/find."
+  (interactive)
+  (let ((default-directory "~/Documents/Papers"))
+    (consult-fd)))
+
+(map! :leader
+      :desc "Find paper"
+      "d p" #'my/search-papers)
  #+end_src
 * Org mode
 ** General things
@@ -238,6 +250,12 @@ Not like this! This will destroy movement in fuzzy search.
         ("work" ("💻") nil nil :ascent center)
         )
       )
+#+end_src
+*** New keybinding
+#+begin_src emacs-lisp tangle:yes
+(map! :leader
+      :desc "Weekly agenda"
+      "o w" #'org-agenda-list)
 #+end_src
 ** Org Super Agenda
 Org Super Agenda organizes contents in the agenda view more nicely. Maybe this could be improved in the future.
