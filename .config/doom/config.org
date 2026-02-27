@@ -1,54 +1,39 @@
 #+title: My personal emacs configuration.
 #+PROPERTY: header-args:emacs-lisp :tangle ./config.el
 
+* Babel tangle
+This makes sure that everytime this org file gets saved the config.el file is updated.
+#+begin_src emacs-lisp :tangle yes
+(defun mp/tangle-on-save-org-mode-file()
+  (when (string= (message "%s" major-mode) "org-mode")
+    (org-babel-tangle)))
+
+(add-hook 'after-save-hook 'mp/tangle-on-save-org-mode-file)
+#+end_src
 * Theme
 We use the package circadian to change between a light and dark theme.
 #+begin_src emacs-lisp :tangle yes
-(use-package circadian
-  :ensure t
-  :config
-  (setq circadian-themes '(("6:00" . doom-feather-light)
-                           ("10:00" . doom-dracula)))
-  (circadian-setup))
+(setq modus-themes-headings
+      '((1 . (variable-pitch 1.5)) ;; 1 means first heading level (document title)
+        (2 . (1.3)) ;;
+        (agenda-date . (1.3))
+        (agenda-structure . (variable-pitch light 1.8))
+        (t . (1.1))))
+
+(load-theme 'modus-vivendi-tinted t)
+#+end_src
+** Toggle light dark theme
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Light and dark theme"
+      "t t" 'modus-themes-toggle)
 #+end_src
 * UI
 ** Line numbers
 #+begin_src emacs-lisp :tangle yes
-;; Linenumber
 (column-number-mode)
 (global-display-line-numbers-mode t)
 (setq display-line-numbers-type 'relative) ;; This sets relative line numbers.
-
-;; Disable line numbers for some modes
-(dolist (mode '(term-mode-hook
-                org-agenda-mode-hook
-                pdf-view-mode-hook ;; otherwise conflicts
-                shell-mode-hook
-                vterm-mode-hook
-                treemacs-mode-hook
-                eshell-mode-hook))
-(add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-;;
-;; I prefer visual lines
-(setq display-line-numbers-type 'visual
-      line-move-visual t)
-(use-package-hook! evil
-  :pre-init
-  (setq evil-respect-visual-line-mode t) ;; sane j and k behavior
-  t)
-
-;; I also like evil mode visual movement
-(map! :map evil-normal-state-map
-      :desc "Move to next visual line"
-      "j" 'evil-next-visual-line
-      :desc "Move to previous visual line"
-      "k" 'evil-previous-visual-line)
-#+end_src
-
-** Remove tilde on empty lines
-#+begin_src emacs-lisp :tangle yes
-(remove-hook 'org-mode-hook #'vi-tilde-fringe-mode)
 #+end_src
 ** Font
 #+begin_src emacs-lisp :tangle yes
@@ -57,75 +42,25 @@ We use the package circadian to change between a light and dark theme.
     doom-variable-pitch-font (font-spec :family "SF Pro Text")
      )
 #+end_src
-
-** Tree-sitter
-#+begin_src emacs-lisp :tangle yes
-;; (use-package treesit-auto
-;;   :config
-;;   (treesit-auto-add-to-auto-mode-alist 'all))
-#+end_src
-** No titlebar
-#+begin_src emacs-lisp :tangle yes
-;; No titlebar
-(add-to-list 'default-frame-alist '(undecorated-round . t))
-#+end_src
-** Transparency
-#+begin_src emacs-lisp :tangle yes
-(doom/set-frame-opacity 95) ;; Sets the transparency to 90% at start of doom.
-;; (setq doom/set-frame-opacity 90)
-#+end_src
-** Icons
-#+begin_src emacs-lisp :tangle yes
-(use-package nerd-icons
-  :ensure t)
-#+end_src
-** Scrolling
-#+begin_src emacs-lisp :tangle yes
-(good-scroll-mode t)
+** Modeline
+#+begin_src emacs-lisp
+(setq doom-modeline-bar-height 25)
+(setq doom-modeline-time-icon t)
+(setq doom-modeline-project-name t)
 #+end_src
 * Keybindings
-Not like this! This will destroy movement in fuzzy search.
-#+begin_src emacs-lisp :tangle yes
-(define-key evil-motion-state-map (kbd "C-h") #'evil-window-left)
-(define-key evil-motion-state-map (kbd "C-j") #'evil-window-down)
-(define-key evil-motion-state-map (kbd "C-k") #'evil-window-up)
-(define-key evil-motion-state-map (kbd "C-l") #'evil-window-right)
-#+end_src
-** Use *jk* to escape
 #+begin_src emacs-lisp :tangle yes
 (use-package! evil-escape
     :init
     (setq evil-escape-key-sequence "jk"))
 #+end_src
-** Insert Emoji
-#+begin_src emacs-lisp :tangle yes
+Open Weekly agenda
+#+begin_src emacs-lisp tangle:yes
 (map! :leader
-      (:prefix ("i")
-      :desc "Emoji"
-      "e" #'emoji-insert))
+      :desc "Weekly agenda"
+      "o w" #'org-agenda-list)
 #+end_src
-** Umlaute
-#+begin_src emacs-lisp :tangle yes
-(with-eval-after-load 'evil
-  ;; Create a prefix command
-  (define-prefix-command 'my/umlaut-map)
-
-  ;; Bind Option + ' as the prefix in insert state
-  (evil-define-key 'insert 'global
-    (kbd "C-u") 'my/umlaut-map)
-
-  ;; Lowercase umlauts
-  (define-key my/umlaut-map (kbd "a") (lambda () (interactive) (insert "ä")))
-  (define-key my/umlaut-map (kbd "o") (lambda () (interactive) (insert "ö")))
-  (define-key my/umlaut-map (kbd "u") (lambda () (interactive) (insert "ü")))
-  (define-key my/umlaut-map (kbd "s") (lambda () (interactive) (insert "ß")))
-
-  ;; Uppercase umlauts
-  (define-key my/umlaut-map (kbd "A") (lambda () (interactive) (insert "Ä")))
-  (define-key my/umlaut-map (kbd "O") (lambda () (interactive) (insert "Ö")))
-  (define-key my/umlaut-map (kbd "U") (lambda () (interactive) (insert "Ü"))))
-#+end_src
-* Searching
+Searching
 ** General documents
  #+begin_src emacs-lisp tangle:yes
 (defun my/search-documents ()
@@ -150,187 +85,7 @@ Not like this! This will destroy movement in fuzzy search.
       :desc "Find paper"
       "d p" #'my/search-papers)
  #+end_src
-* Org mode
-** General things
-#+begin_src emacs-lisp :tangle yes
-(use-package org
-        :config
-        (setq org-agenda-start-with-log-mode t)
-        (setq org-log-done 'time)
-        (setq org-log-into-drawer t)
-        (setq org-directory "~/Org/") ;; last / was necessary
-        (setq org-agenda-files '("todos.org"))
-        (setq org-agenda-hide-tags-regexp ".*")
-        (setq org-agenda-span 7)
-        (setq org-agenda-start-day "+0d")
-        (setq org-agenda-time-grid '((daily) () "" ""))
-        (setq org-todo-keywords
-        '((sequence "TODO(t)" "READ(r)" "|" "DONE(d)")))
-)
-
-(custom-set-faces!
-  `(outline-1 :height 1.3 :foreground ,(nth 1 (nth 14 doom-themes--colors)))
-  `(outline-2 :height 1.25 :foreground ,(nth 1 (nth 15 doom-themes--colors)))
-  `(outline-3 :height 1.2 :foreground ,(nth 1 (nth 19 doom-themes--colors)))
-  `(outline-4 :height 1.1 :foreground ,(nth 1 (nth 23 doom-themes--colors)))
-  `(outline-5 :height 1.1 :foreground ,(nth 1 (nth 24 doom-themes--colors)))
-  `(outline-6 :height 1.1 :foreground ,(nth 1 (nth 16 doom-themes--colors)))
-  `(outline-7 :height 1.05 :foreground ,(nth 1 (nth 18 doom-themes--colors)))
-  `(outline-8 :height 1.05 :foreground ,(nth 1 (nth 11 doom-themes--colors)))
-  )
-
-(setq
- ;; Edit settings
- org-auto-align-tags nil
- org-tags-column 0
- org-catch-invisible-edits 'show-and-error
- org-special-ctrl-a/e t
- org-insert-heading-respect-content t
- org-modern-fold-stars '(("◉" . "◉") ("○" . "○") ("●" . "●") ("○" . "○"))
-
- ;; Org styling, hide markup etc.
- org-hide-emphasis-markers t
- org-pretty-entities t
-
- ;; Agenda styling
- org-agenda-tags-column 0
- org-agenda-block-separator ?─
- org-agenda-time-grid
- '((daily today require-timed)
-   (800 1000 1200 1400 1600 1800 2000)
-   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
- org-agenda-current-time-string
- "◀── now ─────────────────────────────────────────────────")
-
-;; Ellipsis styling
-(setq org-ellipsis " ▾") ;; symbol if header is closed
-(set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
-(with-eval-after-load 'org (global-org-modern-mode))
-
-#+end_src
-** Keybindings
-#+begin_src emacs-lisp :tangle yes
-(map! :after org
-      :map org-mode-map
-      :localleader  ; this corresponds to SPC m
-      :desc "Emphasize" "i" #'org-emphasize)
-#+end_src
-** Org-Agenda
-#+begin_src emacs-lisp :tangle yes
-(defun mp/org-agenda-open-hook ()
-  "Hook to be run when org-agenda is opened"
-  (olivetti-mode))
-
-(add-hook 'org-agenda-mode-hook 'mp/org-agenda-open-hook)
-
-;; Custom styles for dates in agenda
-(custom-set-faces!
-  '(org-agenda-date :inherit outline-1 :height 1.01)
-  '(org-agenda-date-today :inherit outline-2 :height 1.01)
-  '(org-agenda-date-weekend :inherit outline-1 :height 1.01)
-  '(org-agenda-date-weekend-today :inherit outline-2 :height 1.01)
-  '(org-super-agenda-header :inherit custom-button :weight bold :height 1.01)
-  `(link :foreground unspecified :underline nil :background ,(nth 1 (nth 7 doom-themes--colors)))
-  '(org-link :foreground unspecified))
-
-;; this determines what is shown in the agenda
-(setq org-agenda-prefix-format '(
-  (agenda . " %?-2i %t ")
-  (todo . " %i %-12:c")
-  (tags . " %i %-12:c")
-  (search . " %i %-12:c")))
-
-;; different emojis for different categories of todos
-(setq org-agenda-category-icon-alist
-      '(
-        ("teaching" ("🎓") nil nil :ascent center)
-        ("home" ("🏡") nil nil :ascent center)
-        ("janika" ("🦦") nil nil :ascent center)
-        ("private" ("🐼") nil nil :ascent center)
-        ("work" ("💻") nil nil :ascent center)
-        )
-      )
-#+end_src
-*** New keybinding
-#+begin_src emacs-lisp tangle:yes
-(map! :leader
-      :desc "Weekly agenda"
-      "o w" #'org-agenda-list)
-#+end_src
-** Org Super Agenda
-Org Super Agenda organizes contents in the agenda view more nicely. Maybe this could be improved in the future.
-#+begin_src emacs-lisp :tangle yes
-(require 'org-super-agenda)
-(setq org-super-agenda-groups
-      '(
-        (:name " Today "
-               :time-grid t
-               :date today
-               :scheduled today
-               :order 1
-               :face 'warning)
-        (:name "! Overdue "
-               :scheduled past
-               :date today
-               :order 1
-               ;; :not (:log closed)
-               ;; :discard (:todo "DONE")
-               :face 'error)
-        (:name "Teaching "
-               :and(:category "teaching")
-               :order 3)
-        (:name "Haus "
-               :and(:category "home")
-               :order 3)
-        (:name "Privat "
-               :and(:category "private")
-               :order 3)
-        (:name "Janika "
-               :and(:category "janika")
-               :order 3)
-        (:name "Arbeit"
-               :and(:category "work")
-               :order 3)
-        ))
-
-(org-super-agenda-mode t)
-
-(map! :desc "Next Line"
-      :map org-super-agenda-header-map
-      "j" 'org-agenda-next-line)
-
-(map! :desc "Next Line"
-      :map org-super-agenda-header-map
-      "k" 'org-agenda-previous-line)
-#+end_src
-** Auto-tangle Configuration Files
-
-This snippet adds a hook to =org-mode= buffers so that =efs/org-babel-tangle-config= gets executed each time such a buffer gets saved.  This function checks to see if the file being saved is the Emacs.org file you're looking at right now, and if so, automatically exports the configuration here to the associated output files.
-
-#+begin_src emacs-lisp :tangle yes
-(defun mp/tangle-on-save-org-mode-file()
-  (when (string= (message "%s" major-mode) "org-mode")
-    (org-babel-tangle)))
-
-(add-hook 'after-save-hook 'mp/tangle-on-save-org-mode-file)
-#+end_src
-** Org-Download
-#+begin_src emacs-lisp
-(require 'org-download)
-
-;; Drag-and-drop to `dired`
-(add-hook 'dired-mode-hook 'org-download-enable)
-#+end_src
-** Nice Bullets
-[[https://github.com/sabof/org-bullets][org-bullets]] replaces the heading stars in =org-mode= buffers with nicer looking characters that you can control.  Another option for this is [[https://github.com/integral-dw/org-superstar-mode][org-superstar-mode]] which we may cover in a later video.
-#+begin_src emacs-lisp :tangle yes
-
-  ;; (use-package org-bullets
-  ;;   :hook (org-mode . org-bullets-mode)
-  ;;   :custom
-  ;;   (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-#+end_src
+* Org
 ** Org Roam
 We want to use this package as our note taking system.
 *** Directory
@@ -338,143 +93,12 @@ Org roam directory will be located in the Zettelkasten directory.
 #+begin_src emacs-lisp :tangle yes
 (setq org-roam-directory "~/Zettelkasten")
 #+end_src
-*** To fix :title :title bug
-#+begin_src emacs-lisp :tangle yes
-(set-file-template! 'org-mode :ignore t) ;; works
-#+end_src
-*** UI
-#+begin_src emacs-lisp :tangle yes
-(use-package! websocket
-    :after org-roam)
-
-(use-package! org-roam-ui
-    :after org-roam ;; or :after org
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-    ;; :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
-#+end_src
-*** The concept
-We have two different kinds of notes. *Fleeting notes* and *permanent notes*.
-** Org Journal
-This sets the path to the directory where to journal notes are located.
-#+begin_src emacs-lisp :tangle yes
-(setq org-journal-dir "~/Tagebuch")
-#+end_src
-** Center Buffers
-This centers org mode buffers. Looks nicer if the org buffer takes up the whole screen.
-#+begin_src emacs-lisp :tangle yes
-
-  (defun mp/org-mode-visual-fill ()
-    (setq visual-fill-column-width 100
-          visual-fill-column-center-text t)
-    (visual-fill-column-mode 1))
-
-  (use-package visual-fill-column
-    :hook (org-mode . mp/org-mode-visual-fill))
-
-#+end_src
-** OX-Latex
-#+begin_src emacs-lisp :tangle yes
-;; Load ox-latex and add custom class
-(use-package! ox-latex
-  :after org
-  :config
-  (add-to-list 'org-latex-classes
-               '("org-exesheet"
-                 "\\documentclass{exesheet}
-[DEFAULT-PACKAGES]
-[PACKAGES]
-[EXTRA]"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
-
-;; Enable ox-extra (for ignoring headlines etc.)
-(use-package! ox-extra
-  :after org
-  :config
-  (ox-extras-activate '(ignore-headlines)))
-#+end_src
-* Language servers
-** Julia
-First we need some Julia environment where /LanguageServer.jl/ and /SymbolServer.jl/ is installed.
-Then we neeed to set we set the following two variables inside Emacs.
-The latter one needs to match the Julia environment where the two packages are installed.
-#+begin_src emacs-lisp :tangle yes
-;; Enable LSP mode for Julia
-(setq lsp-julia-package-dir nil)
-(setq lsp-julia-default-environment "~/.julia/environments/v1.11")
-#+end_src
-** Go
-First I uncommented the ~go~ line in the *init.el* file.
-Then when I opened a .go file the lsp did not work. And if I read the logs (SPC b B) I saw the following
-#+begin_src shell
-Command "semgrep lsp" is not present on the path.
-Command "golangci-lint-langserver" is not present on the path.
-Command "gopls -remote=auto" is not present on the path.
-Command "semgrep lsp" is not present on the path.
-Command "golangci-lint-langserver" is not present on the path.
-Command "gopls -remote=auto" is not present on the path.
-#+end_src
-Now apparently there are two different directories where go stuff is installed. On the one hand there is the */usr/local/go/bin* directory where Go itself is installed. But Go binaries should be installed in *$HOME/go/bin*. And we need to add this directory to our path as we also did for the Go installation itself.
-#+begin_src shell
-export PATH="/Users/markuspirke/go/bin:$PATH"
-#+end_src
-Then we only need to sync doom again with
-#+begin_src shell
-doom sync
+** UI
+#+begin_src emacs-lisp
+;; (setq org-ellipsis "[..]") ;; symbol if header is closed
+;; (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 #+end_src
 
-** Snakemake
-We can use the *snakemake-mode* package for writing Snake files.
-Then we can define the following hook, which actives the /snakemake-mode/ when we open a file with the filename *Snakefile*.
-#+begin_src emacs-lisp :tangle yes
-(defun mp/snakemake-open-hook ()
-  "Hook to be run when Snakefile is opened"
-   (when (string-match-p "Snakefile" (buffer-file-name))
-    (snakemake-mode)))
-
-(add-hook 'find-file-hook 'mp/snakemake-open-hook)
-#+end_src
-* Spelling
-** Jinx-correct
-This seems to be a great package for finding spelling mistakes. Some conflicts with flyspell-mode.
-One needs to install a two external dependencies.
-#+begin_src bash
-homebrew install enchant
-homebrew install pkgconf
-#+end_src
-The latter one had conflicts on my system, as I already had installed something similar called /pkg-config/. But it worked nonetheless.
-#+begin_src emacs-lisp :tangle yes
-(use-package jinx
-  :ensure t
-  :hook ((LaTeX-mode . jinx-mode)
-         (latex-mode . jinx-mode)
-         (org-mode . jinx-mode)
-         (text-mode . jinx-mode))
-  :config (setq jinx-languages "en_US,de")
-  )
-;; this turns of the flyspell-mode when an org document is opened
-;; disable flyspell-mode
-(setq-default spell-checking-enable-by-default nil)
-(remove-hook 'org-mode-hook #'flyspell-mode)
-(remove-hook 'latex-mode-hook #'flyspell-mode)
-(remove-hook 'LaTeX-mode-hook #'flyspell-mode)
-(remove-hook 'text-mode-hook #'flyspell-mode)
-;; Shortcut for correct word
-(map! :leader
-      (:prefix ("e" . "edit")
-      :desc "Correct word"
-      "w" #'jinx-correct-word))
-#+end_src
 * Email
 #+begin_src emacs-lisp :tangle yes
 ;; (require 'mu4e)
@@ -489,13 +113,24 @@ The latter one had conflicts on my system, as I already had installed something 
         (setq mu4e-headers-include-related nil)
 
         ;; Make sure plain text mails flow correctly for recipients
-        (setq mu4e-compose-format-flowed t)
-        (setq sendmail-program (executable-find "msmtp"))
-        ;; Configure the function to use for sending mail
-        ;; (setq message-send-mail-function 'smtpmail-send-it)
-        (setq send-mail-function 'sendmail-send-it
-            message-send-mail-function 'sendmail-send-it)
-        )
+        (setq
+            mail-user-agent 'mu4e-user-agent
+            sendmail-program (executable-find "msmtp")
+            send-mail-function 'message-send-mail-with-sendmail
+            message-send-mail-function 'message-send-mail-with-sendmail
+
+            message-kill-buffer-on-exit t
+            message-sendmail-f-is-evil t
+            message-sendmail-extra-arguments '("--read-envelope-from")
+            message-sendmail-envelope-from 'header)
+         )
+        ;; (setq mu4e-compose-format-flowed t)
+        ;; (setq sendmail-program (executable-find "msmtp"))
+        ;; ;; Configure the function to use for sending mail
+        ;; ;; (setq message-send-mail-function 'smtpmail-send-it)
+        ;; (setq send-mail-function 'sendmail-send-it
+        ;;     message-send-mail-function 'sendmail-send-it)
+        ;; )
 (setq mu4e-contexts
       (list
        ;; Work account
@@ -507,9 +142,6 @@ The latter one had conflicts on my system, as I already had installed something 
                         (string-prefix-p "/FAU" (mu4e-message-field msg :maildir))))
         :vars '((user-mail-address . "markus.pirke@fau.de")
                 (user-full-name    . "Markus Pirke")
-                (smtpmail-smtp-server  . "smtp-auth.fau.de")
-                (smtpmail-smtp-service . 465)
-                (smtpmail-stream-type  . ssl)
                 (mu4e-sent-folder  . "/FAU/Sent")
                 (mu4e-drafts-folder . "/FAU/Drafts")
                 (mu4e-trash-folder  . "/FAU/Trash")
@@ -523,11 +155,6 @@ The latter one had conflicts on my system, as I already had installed something 
                         (string-prefix-p "/iCloud" (mu4e-message-field msg :maildir))))
         :vars '((user-mail-address . "markus.pirke@icloud.com")
                 (user-full-name    . "Markus Pirke")
-                ;; (smtpmail-smtp-server  . "smtp.mail.me.com")
-                ;; (smtpmail-smtp-user . "markus.pirke@icloud.com")
-                ;; (smtpmail-smtp-service . 587)
-                ;; (smtpmail-stream-type  . starttls)
-                ;; (smtpmail-use-gnutls   . t)
                 (mu4e-sent-folder  . "/iCloud/Sent Messages")
                 (mu4e-drafts-folder . "/iCloud/Drafts")
                 (mu4e-trash-folder  . "/iCloud/Deleted Messages")
@@ -545,103 +172,21 @@ The latter one had conflicts on my system, as I already had installed something 
      :key  ?p
      :query "flag:unread AND NOT flag:trashed AND maildir:/iCloud/INBOX"))
 #+end_src
-* Evil
-** Evil-multiedit
-Already configured in Doom Emacs.
-* Latex
+* Utils
+** Multiple languages within Emacs
+We can change within emacs between multiple languages without changing the system wide keyboard layout!
 #+begin_src emacs-lisp :tangle yes
-(setq +latex-viewers '(pdf-tools))
-(add-to-list 'auto-mode-alist '("\\.tex\\'" . LaTeX-mode))
-(after! latex
-  (add-hook 'LaTeX-mode-hook #'lsp!))
+(setq default-input-method "german")
+(setq default-transient-input-method "german")
 #+end_src
-
+* GPTEL
 #+begin_src emacs-lisp :tangle yes
-;; (defun my/copy-latex-math-region ()
-;;   "Copy the content between the nearest pair of $...$ surrounding point."
-;;   (interactive)
-;;   (save-excursion
-;;     (let (beg end)
-;;       ;; Search backward for opening $
-;;       (unless (search-backward "$" nil t)
-;;         (error "No opening $ found"))
-;;       ;; Make sure it's not $$
-;;       (while (looking-back "\\$" 1)
-;;         (backward-char)
-;;         (unless (search-backward "$" nil t)
-;;           (error "No opening $ found")))
-;;       (forward-char)
-;;       (setq beg (point))
-;;       ;; Search forward for closing $
-;;       (unless (search-forward "$" nil t)
-;;         (error "No closing $ found"))
-;;       (setq end (1- (point)))
-;;       (kill-ring-save beg end)
-;;       (message "Copied LaTeX math content: %s" (buffer-substring-no-properties beg end)))))
+(gptel-make-ollama "Ollama"             ;Any name of your choosing
+  :host "localhost:11434"               ;Where it's running
+  :stream t                             ;Stream responses
+  :models '(ministral-3:8b
+            ministral-3:3b
+            qwen3:4b
+            qwen3-vl:4b
+            lfm2.5-thinking:latest))
 #+end_src
-;; Define a text object for $...$ regions
-#+begin_src emacs-lisp :tangle yes
-;; (use-package! evil-textobj-anyblock
-;;   :after evil
-;;   :config
-;;   ;; Define a $...$ text object using evil-textobj-anyblock
-;;   (define-key evil-inner-text-objects-map "$"
-;;     (evil-textobj-anyblock--make-textobj ?$))
-;;   (define-key evil-outer-text-objects-map "$"
-;;     (evil-textobj-anyblock--make-textobj ?$ t)))
-#+end_src
-** CDLatex
-This I could only install via the command ~package-install~, if I added cdlatex into my ~init.el~ or in ~packages.el~ I got an error.
-#+begin_src emacs-lisp :tangle yes
-(use-package! cdlatex
-  :hook (LaTeX-mode . turn-on-cdlatex))
-#+end_src
-* Julia
-#+begin_src emacs-lisp :tangle yes
-;; (defun display-image-in-emacs (filename)
-;;   "Open an image file inside Emacs."
-;;   (let ((buffer (get-buffer-create "*Julia Plot*")))
-;;     (with-current-buffer buffer
-;;       (erase-buffer)
-;;       (insert-image (create-image filename)))
-;;     (display-buffer buffer)))
-(defun display-image-in-emacs (filename)
-  "Open an image file inside Emacs in a specific window."
-  (let ((buffer (get-buffer-create "*Julia Plot*")))
-    (with-current-buffer buffer
-      (erase-buffer)
-      (insert-image (create-image filename)))
-    (display-buffer buffer)))
-
-(defun setup-julia-layout ()
-  "Set up a Julia workflow layout:
-  - Left: Julia source file (big window)
-  - Right (top): Plot preview
-  - Right (bottom): vterm"
-  (interactive)
-  (when (string-match "\\.jl\\'" (buffer-file-name))  ;; Ensure it's a Julia file
-    (let* ((main-window (frame-root-window))          ;; Get the main window
-           (right-window (split-window main-window nil 'right))  ;; Split right side
-           (plot-window (split-window right-window nil 'above))) ;; Split top-right
-
-      ;; Keep left window large
-      (select-window main-window)
-      ;; (enlarge-window-horizontally (- (/ (window-width) 2) 50))
-
-      ;; Open plot preview in top-right window
-      (select-window plot-window)
-      (switch-to-buffer (get-buffer-create "*Julia Plot*"))
-
-      ;; Open vterm in the bottom-right window
-      (select-window right-window)
-      (vterm/here)  ;; Just open vterm, user starts Julia manually
-      (select-window main-window))))
-
-#+end_src
-
-#+RESULTS:
-: setup-julia-layout
-
-* SSH
-We can also add projects which we usually access via ssh in projectile.
-* Some useful functions
