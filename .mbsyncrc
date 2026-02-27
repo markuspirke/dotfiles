@@ -39,7 +39,6 @@ Host imap.mail.me.com
 Port 993
 User markus.pirke@icloud.com
 PassCmd "Pass show Privat/icloud-mail-app-specific"
-#PassCmd "echo "
 SSLType IMAPS
 SSLVersions TLSv1.2
 AuthMechs PLAIN
