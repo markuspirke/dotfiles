@@ -25,7 +25,7 @@ map("i", "<C-j>", "<Down>", { desc = "move down" })
 map("i", "<C-k>", "<Up>", { desc = "move up" })
 
 -- Telescope
-map("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "find files" })
-map("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "live grep" })
-map("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "buffers" })
+map("n", "<leader><leader>", "<cmd>Telescope find_files<cr>", { desc = "find files" })
+map("n", "<leader>sp", "<cmd>Telescope live_grep<cr>", { desc = "live grep" })
+map("n", "<leader>,", "<cmd>Telescope buffers<cr>", { desc = "buffers" })
 map("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "help tags" })
