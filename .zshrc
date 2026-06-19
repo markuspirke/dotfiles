@@ -14,14 +14,7 @@ jupyter() {
 # prompt configuration with ohmyposh
 eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/zen.toml)"
 
-# >>> juliaup initialize >>>
 
-# !! Contents within this block are managed by juliaup !!
-
-path=('/Users/markuspirke/.juliaup/bin' $path)
-export PATH
-
-# <<< juliaup initialize <<<
 
 export PATH="$PATH:/usr/local/texlive/2024/bin/universal-darwin"
 export PATH="$PATH:/Users/markuspirke/.config/emacs/bin"
@@ -127,6 +120,7 @@ alias .....="cd ../../../.."
 alias ......="cd ../../../../.."
 alias history="history -n 0"
 alias pass-ecap='PASSWORD_STORE_DIR=~/.password-store-ecap pass'
+alias vim="nvim"
 
 #alias vim='vim -u $HOME/.config/vim/vimrc'
 
@@ -135,3 +129,14 @@ source <(fzf --zsh)
 
 # Created by `pipx` on 2025-04-25 16:08:04
 export PATH="$PATH:/Users/markuspirke/.local/bin"
+
+# >>> juliaup initialize >>>
+
+# !! Contents within this block are managed by juliaup !!
+
+path=('/Users/markuspirke/.juliaup/bin' $path)
+export PATH
+# Tab completion for juliaup and julia channel selection
+[ -f "/Users/markuspirke/.julia/juliaup/completions/zsh.zsh" ] && source "/Users/markuspirke/.julia/juliaup/completions/zsh.zsh"
+
+# <<< juliaup initialize <<<
