@@ -54,3 +54,7 @@
 ;; (unpin! t)
 (package! jinx)
 (package! gptel :recipe (:nonrecursive t))
+(package! org-download)
+(package! citar)
+(package! olivetti)
+(package! org-alert)

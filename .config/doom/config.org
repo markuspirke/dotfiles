@@ -32,13 +32,13 @@ We use the package circadian to change between a light and dark theme.
 ** Line numbers
 #+begin_src emacs-lisp :tangle yes
 (column-number-mode)
-(global-display-line-numbers-mode t)
+(global-display-line-numbers-mode 0)
 (setq display-line-numbers-type 'relative) ;; This sets relative line numbers.
 #+end_src
 ** Font
 #+begin_src emacs-lisp :tangle yes
 (setq
-    doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 24 :weight 'regular) doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 36)
+    doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16 :weight 'regular) doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 24)
     doom-variable-pitch-font (font-spec :family "SF Pro Text")
      )
 #+end_src
@@ -55,14 +55,14 @@ We use the package circadian to change between a light and dark theme.
     (setq evil-escape-key-sequence "jk"))
 #+end_src
 Open Weekly agenda
-#+begin_src emacs-lisp tangle:yes
+#+begin_src emacs-lisp :tangle yes
 (map! :leader
       :desc "Weekly agenda"
       "o w" #'org-agenda-list)
 #+end_src
 Searching
 ** General documents
- #+begin_src emacs-lisp tangle:yes
+ #+begin_src emacs-lisp :tangle yes
 (defun my/search-documents ()
   "Search files in ~/Documents using consult fd/find."
   (interactive)
@@ -74,7 +74,7 @@ Searching
       "d f" #'my/search-documents)
  #+end_src
 ** Papers
- #+begin_src emacs-lisp tangle:yes
+ #+begin_src emacs-lisp :tangle yes
 (defun my/search-papers ()
   "Search files in ~/Documents using consult fd/find."
   (interactive)
@@ -85,6 +85,12 @@ Searching
       :desc "Find paper"
       "d p" #'my/search-papers)
  #+end_src
+** Citations
+#+begin_src emacs-lisp :tangle yes
+(map! :leader
+      :desc "Find citation"
+      "d c" #'citar-open-entry)
+#+end_src
 * Org
 ** Org Roam
 We want to use this package as our note taking system.
@@ -93,12 +99,43 @@ Org roam directory will be located in the Zettelkasten directory.
 #+begin_src emacs-lisp :tangle yes
 (setq org-roam-directory "~/Zettelkasten")
 #+end_src
+*** Turn of completions
+#+begin_src emacs-lisp :tangle yes
+(setq org-roam-completion-everywhere nil)
+#+end_src
+** Agenda
+#+begin_src emacs-lisp :tangle yes
+(setq org-journal-enable-agenda-integration t
+      org-icalendar-store-UID t
+      org-icalendar-include-todo "all"
+      org-icalendar-combined-agenda-file "~/Org/emacs.ics")
+#+end_src
+** Alert
+#+begin_src emacs-lisp :tangle yes
+(use-package org-alert
+  :ensure t)
+(setq alert-default-style 'libnotify)
+#+end_src
 ** UI
 #+begin_src emacs-lisp
 ;; (setq org-ellipsis "[..]") ;; symbol if header is closed
 ;; (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
 #+end_src
+** Olivetti
+#+begin_src emacs-lisp :tangle yes
+;; (use-package olivetti
+;;   :ensure t
+;;   :hook (org-mode . olivetti-mode)
+;;   :config
+;;   (setq olivetti-body-width 200))
+#+end_src
+** Org download
+#+begin_src emacs-lisp :tangle yes
+(require 'org-download)
 
+;; Drag-and-drop to `dired`
+(add-hook 'dired-mode-hook 'org-download-enable)
+#+end_src
 * Email
 #+begin_src emacs-lisp :tangle yes
 ;; (require 'mu4e)
@@ -189,4 +226,50 @@ We can change within emacs between multiple languages without changing the syste
             qwen3:4b
             qwen3-vl:4b
             lfm2.5-thinking:latest))
+#+end_src
+* Citations
+#+begin_src emacs-lisp :tangle yes
+(use-package citar
+  :custom
+  (citar-bibliography '("~/Documents/references.bib")))
+
+(defun my/citar-insert-latex-cite ()
+  "Insert a \\cite{key} at point using citar."
+  (interactive)
+  (let ((key (car (citar-select-refs))))
+    (insert (format "\\cite{%s}" key))))
+
+(map! :leader
+      :desc "Insert citation" "i c" #'my/citar-insert-latex-cite)
+#+end_src
+
+* Jinx
+This seems to be a great package for finding spelling mistakes. Some conflicts with flyspell-mode.
+One needs to install a two external dependencies.
+#+begin_src bash
+homebrew install enchant
+homebrew install pkgconf
+#+end_src
+The latter one had conflicts on my system, as I already had installed something similar called /pkg-config/. But it worked nonetheless.
+#+begin_src emacs-lisp :tangle yes
+(use-package jinx
+  :ensure t
+  :hook ((LaTeX-mode . jinx-mode)
+         (latex-mode . jinx-mode)
+         (org-mode . jinx-mode)
+         (text-mode . jinx-mode))
+  :config (setq jinx-languages "en_US,de")
+  )
+;; this turns of the flyspell-mode when an org document is opened
+;; disable flyspell-mode
+(setq-default spell-checking-enable-by-default nil)
+(remove-hook 'org-mode-hook #'flyspell-mode)
+(remove-hook 'latex-mode-hook #'flyspell-mode)
+(remove-hook 'LaTeX-mode-hook #'flyspell-mode)
+(remove-hook 'text-mode-hook #'flyspell-mode)
+;; Shortcut for correct word
+(map! :leader
+      (:prefix ("e" . "edit")
+      :desc "Correct word"
+      "w" #'jinx-correct-word))
 #+end_src

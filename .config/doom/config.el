@@ -18,11 +18,11 @@
       "t t" 'modus-themes-toggle)
 
 (column-number-mode)
-(global-display-line-numbers-mode t)
+(global-display-line-numbers-mode 0)
 (setq display-line-numbers-type 'relative) ;; This sets relative line numbers.
 
 (setq
-    doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 24 :weight 'regular) doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 36)
+    doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 16 :weight 'regular) doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 24)
     doom-variable-pitch-font (font-spec :family "SF Pro Text")
      )
 
@@ -58,10 +58,36 @@
       :desc "Find paper"
       "d p" #'my/search-papers)
 
+(map! :leader
+      :desc "Find citation"
+      "d c" #'citar-open-entry)
+
 (setq org-roam-directory "~/Zettelkasten")
+
+(setq org-roam-completion-everywhere nil)
+
+(setq org-journal-enable-agenda-integration t
+      org-icalendar-store-UID t
+      org-icalendar-include-todo "all"
+      org-icalendar-combined-agenda-file "~/Org/emacs.ics")
+
+(use-package org-alert
+  :ensure t)
+(setq alert-default-style 'libnotify)
 
 ;; (setq org-ellipsis "[..]") ;; symbol if header is closed
 ;; (set-face-attribute 'org-ellipsis nil :inherit 'default :box nil)
+
+;; (use-package olivetti
+;;   :ensure t
+;;   :hook (org-mode . olivetti-mode)
+;;   :config
+;;   (setq olivetti-body-width 200))
+
+(require 'org-download)
+
+;; Drag-and-drop to `dired`
+(add-hook 'dired-mode-hook 'org-download-enable)
 
 ;; (require 'mu4e)
 (use-package mu4e
@@ -145,3 +171,37 @@
             qwen3:4b
             qwen3-vl:4b
             lfm2.5-thinking:latest))
+
+(use-package citar
+  :custom
+  (citar-bibliography '("~/Documents/references.bib")))
+
+(defun my/citar-insert-latex-cite ()
+  "Insert a \\cite{key} at point using citar."
+  (interactive)
+  (let ((key (car (citar-select-refs))))
+    (insert (format "\\cite{%s}" key))))
+
+(map! :leader
+      :desc "Insert citation" "i c" #'my/citar-insert-latex-cite)
+
+(use-package jinx
+  :ensure t
+  :hook ((LaTeX-mode . jinx-mode)
+         (latex-mode . jinx-mode)
+         (org-mode . jinx-mode)
+         (text-mode . jinx-mode))
+  :config (setq jinx-languages "en_US,de")
+  )
+;; this turns of the flyspell-mode when an org document is opened
+;; disable flyspell-mode
+(setq-default spell-checking-enable-by-default nil)
+(remove-hook 'org-mode-hook #'flyspell-mode)
+(remove-hook 'latex-mode-hook #'flyspell-mode)
+(remove-hook 'LaTeX-mode-hook #'flyspell-mode)
+(remove-hook 'text-mode-hook #'flyspell-mode)
+;; Shortcut for correct word
+(map! :leader
+      (:prefix ("e" . "edit")
+      :desc "Correct word"
+      "w" #'jinx-correct-word))

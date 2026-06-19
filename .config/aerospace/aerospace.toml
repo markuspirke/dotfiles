@@ -9,11 +9,11 @@ after-login-command = []
 # You can use it to add commands that run after AeroSpace startup.
 # 'after-startup-command' is run after 'after-login-command'
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = ['exec-and-forget sketchybar']
-
-exec-on-workspace-change = ['/bin/bash', '-c',
-    'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
-]
+#after-startup-command = ['exec-and-forget sketchybar']
+#
+#exec-on-workspace-change = ['/bin/bash', '-c',
+#    'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
+#]
 # Start AeroSpace at login
 start-at-login = true
 
@@ -91,6 +91,32 @@ else
 end if'
 '''
 
+ctrl-alt-s = '''exec-and-forget osascript -e '
+on is_running(appName)
+    tell application "System Events" to (name of processes) contains appName
+end is_running
+if not is_running("Safari") then
+    tell application "Safari" to activate
+else
+    tell application "System Events" to tell process "Safari"
+        click menu item "New Window" of menu 1 of menu bar item "File" of menu bar 1
+    end tell
+end if'
+'''
+
+ctrl-alt-g = '''exec-and-forget osascript -e '
+on is_running(appName)
+    tell application "System Events" to (name of processes) contains appName
+end is_running
+if not is_running("Chrome") then
+    tell application "Chrome" to activate
+else
+    tell application "System Events" to tell process "Chrome"
+        click menu item "New Window" of menu 1 of menu bar item "File" of menu bar 1
+    end tell
+end if'
+'''
+
 ctrl-alt-f = '''exec-and-forget osascript -e '
 on is_running(appName)
     tell application "System Events" to (name of processes) contains appName
@@ -147,7 +173,7 @@ alt-shift-c = 'move-node-to-workspace C'
 alt-shift-e = 'move-node-to-workspace E'
 alt-shift-p = 'move-node-to-workspace P'
 alt-shift-m = 'move-node-to-workspace M'
-alt-shift-n = 'move-node-to-workspace n'
+alt-shift-n = 'move-node-to-workspace N'
 alt-shift-r = 'move-node-to-workspace R'
 alt-shift-s = 'move-node-to-workspace S'
 alt-shift-t = 'move-node-to-workspace T'
@@ -198,6 +224,7 @@ C = ['u27p2g6b', 'secondary', 'build_in']
 E = ['u2790b', 'secondary', 'build_in']
 P = ['u2790b', 'secondary', 'build_in']
 M = ['u27p2g6b', 'secondary', 'build_in']
+N = ['u2790b', 'secondary', 'build_in']
 S = 'build_in'
 R = ['u2790b', 'secondary', 'build_in']
 T = ['u2790b', 'secondary', 'build_in']
